@@ -168,10 +168,12 @@ export default function Categories() {
             </thead>
             <tbody className="divide-y divide-[#d8dbe0]">
               {filteredCategories.map((category) => (
-                <tr key={category.id} className="hover:bg-gray-100">
+                <tr key={category._id} className="hover:bg-gray-100">
                   <td className="px-6 py-4">
                     {category.image ? (
                       <Image 
+                        width={500}
+                        height={300}
                         src={category.image} 
                         alt={category.name} 
                         className="h-12 w-12 object-cover rounded-full"

@@ -46,7 +46,7 @@ export default function EditOrder() {
       });
       // Convert itemsSummary to cart format
       setCart(data.itemsSummary.map(item => ({
-        id: item.id,
+        _id: item.id,
         title: item.title,
         price: item.unitPrice,
         quantity: item.quantity,
@@ -60,11 +60,12 @@ export default function EditOrder() {
   };
 
   const addToCart = (product) => {
+    console.log('Adding to cart:', product);
     setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.id === product.id);
+      const existingItem = prevCart.find(item => item._id === product._id);
       if (existingItem) {
         return prevCart.map(item =>
-          item.id === product.id
+          item._id === product._id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
@@ -74,17 +75,22 @@ export default function EditOrder() {
   };
 
   const removeFromCart = (productId) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== productId));
+    console.log('Removing from cart:', productId);
+    setCart(prevCart => {
+      const updatedCart = prevCart.filter(item => item._id !== productId);
+      console.log('Updated cart:', updatedCart);
+      return updatedCart;
+    });
   };
 
   const updateQuantity = (productId, newQuantity) => {
     if (newQuantity < 1) return;
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => p._id === productId);
     if (newQuantity > product.stock) return;
 
     setCart(prevCart =>
       prevCart.map(item =>
-        item.id === productId
+        item._id === productId
           ? { ...item, quantity: newQuantity }
           : item
       )
@@ -105,7 +111,7 @@ export default function EditOrder() {
           ...formData,
           total: cartTotal,
           items: cart.map(item => ({
-            id: item.id,
+            id: item._id,
             title: item.title,
             quantity: item.quantity,
             price: item.price,
@@ -126,7 +132,7 @@ export default function EditOrder() {
     const productId = e.target.value;
     if (!productId) return;
     
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => p._id === productId);
     if (product) {
       addToCart(product);
       setSelectedProduct(''); // Reset selection
@@ -137,7 +143,7 @@ export default function EditOrder() {
     const productId = selectedProduct;
     if (!productId) return;
     
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => p._id === productId);
     if (!product) return;
     
     // Check if quantity is valid
@@ -147,7 +153,7 @@ export default function EditOrder() {
     }
 
     setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.id === product.id);
+      const existingItem = prevCart.find(item => item._id === product._id);
       if (existingItem) {
         const newQuantity = existingItem.quantity + newItemQuantity;
         if (newQuantity > product.stock) {
@@ -155,7 +161,7 @@ export default function EditOrder() {
           return prevCart;
         }
         return prevCart.map(item =>
-          item.id === product.id
+          item._id === product._id
             ? { ...item, quantity: newQuantity }
             : item
         );
@@ -190,7 +196,7 @@ export default function EditOrder() {
               >
                 <option value="">Select a product</option>
                 {products.map(product => (
-                  <option key={product.id} value={product.id}>
+                  <option key={product._id} value={product._id}>
                     {product.title} - ${product.price.toFixed(2)} ({product.stock} in stock)
                   </option>
                 ))}
@@ -239,7 +245,7 @@ export default function EditOrder() {
             <h3 className="text-lg font-semibold mb-4">Cart</h3>
             <div className="space-y-4">
               {cart.map(item => (
-                <div key={item.id} className="flex items-center justify-between border-b pb-2">
+                <div key={item._id} className="flex items-center justify-between border-b pb-2">
                   <div>
                     <p className="font-medium">{item.title}</p>
                     <p className="text-sm text-gray-600">${item.price.toFixed(2)}</p>
@@ -248,13 +254,13 @@ export default function EditOrder() {
                     <input
                       type="number"
                       value={item.quantity}
-                      onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                      onChange={(e) => updateQuantity(item._id, parseInt(e.target.value))}
                       className="w-16 p-1 border rounded"
                       min="1"
                     />
                     <button
                       type="button"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => removeFromCart(item._id)}
                       className="text-red-600 hover:text-red-800"
                     >
                       Remove
@@ -301,4 +307,4 @@ export default function EditOrder() {
       </div>
     </Layout>
   );
-} 
+}

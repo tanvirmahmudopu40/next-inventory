@@ -1,17 +1,18 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
+import connectDB from '../../../../lib/mongodb';
 import Purchase from '../../../../models/Purchase';
 
-const dbUri = process.env.MONGODB_URI;
+
+
 
 export async function GET(request, { params }) {
   try {
-    await mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true });
-    const purchase = await Purchase.findById(params.id);
+    await connectDB();
+    const purchase = await Purchase.findById(params.id).lean();
 
     if (!purchase) {
       return NextResponse.json(
-        { error: 'Purchase not found' },
+        { error: 'Category not found' },
         { status: 404 }
       );
     }
@@ -23,13 +24,12 @@ export async function GET(request, { params }) {
       { error: 'Failed to fetch purchase' },
       { status: 500 }
     );
-  } finally {
-    await mongoose.disconnect();
   }
 }
 
 export async function PUT(request, { params }) {
   try {
+    await connectDB();
     const data = await request.json();
     
     // Calculate total amount from items
@@ -40,8 +40,6 @@ export async function PUT(request, { params }) {
     // Calculate final amount with tax and shipping
     const taxAmount = (totalAmount * (data.tax || 0)) / 100;
     const finalAmount = totalAmount + taxAmount + (data.shipping || 0);
-
-    await mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true });
     const purchase = await Purchase.findByIdAndUpdate(
       params.id,
       {
@@ -66,15 +64,15 @@ export async function PUT(request, { params }) {
       { error: 'Failed to update purchase' },
       { status: 500 }
     );
-  } finally {
-    await mongoose.disconnect();
   }
 }
 
+
+
 export async function DELETE(request, { params }) {
   try {
-    await mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true });
-    await Purchase.findByIdAndDelete(params.id);
+    await connectDB();
+    const purchase = await Purchase.findByIdAndDelete(params.id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to delete purchase:', error);
@@ -82,7 +80,5 @@ export async function DELETE(request, { params }) {
       { error: 'Failed to delete purchase' },
       { status: 500 }
     );
-  } finally {
-    await mongoose.disconnect();
-  }
+  } 
 }

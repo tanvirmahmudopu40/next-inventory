@@ -65,10 +65,19 @@ export default function AddPurchase() {
   }, [supplierSearchTerm, suppliers]);
 
   useEffect(() => {
-    if (warehouseSearchTerm) {
-      const filtered = warehouses.filter(warehouse =>
-        warehouse.name.toLowerCase().includes(warehouseSearchTerm.toLowerCase())
-      );
+    console.log("warehouseSearchTerm:", warehouseSearchTerm);
+    console.log("warehouses:", warehouses);
+
+    if (warehouseSearchTerm && Array.isArray(warehouses)) {
+      const filtered = warehouses.filter(warehouse => {
+        if (warehouse && warehouse.name) {
+          const match = warehouse.name.toLowerCase().includes(warehouseSearchTerm.toLowerCase());
+          console.log(`Checking warehouse: ${warehouse.name}, Match: ${match}`);
+          return match;
+        }
+        return false;
+      });
+      console.log("filtered:", filtered);
       setFilteredWarehouses(filtered);
       setShowWarehouseDropdown(true);
     } else {

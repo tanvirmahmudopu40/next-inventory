@@ -129,7 +129,7 @@ export default function Home() {
       setProducts(updatedProducts);
 
       // Redirect to invoice page
-      window.location.href = `/orders/${order.id}`;
+      window.location.href = `/orders/${order._id}`;
       
     } catch (error) {
       console.error('Failed to complete sale:', error);
@@ -248,6 +248,8 @@ export default function Home() {
               >
                 {category.image ? (
                   <Image
+                  width={300}
+                  height={300}
                     src={category.image}
                     alt={category.name}
                     className="w-12 h-12 object-cover rounded"
@@ -268,15 +270,15 @@ export default function Home() {
             <div className="grid grid-cols-4 gap-4">
               {products.map((product) => (
                 <button
-                  key={product.id}
+                  key={product._id}
                   onClick={() => {
                     if (product.stock <= 0) return;
                     
                     setCart(prevCart => {
-                      const existingItem = prevCart.find(item => item.id === product.id);
+                      const existingItem = prevCart.find(item => item._id === product._id);
                       if (existingItem) {
                         return prevCart.map(item =>
-                          item.id === product.id
+                          item._id === product._id
                             ? { ...item, quantity: item.quantity + 1 }
                             : item
                         );
@@ -295,6 +297,8 @@ export default function Home() {
                   <div className="h-40 rounded-lg mb-3 overflow-hidden">
                     {product.image ? (
                       <Image
+                      width={300}
+                  height={300}
                         src={product.image}
                         alt={product.title}
                         className="w-full h-full object-cover"
@@ -336,6 +340,8 @@ export default function Home() {
                 <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                   {item.image ? (
                     <Image 
+                    width={300}
+                  height={300}
                       src={item.image} 
                       alt={item.title}
                       className="w-16 h-16 object-cover rounded-lg"

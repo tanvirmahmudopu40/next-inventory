@@ -109,6 +109,8 @@ export default function AddCategory() {
                 <div className="flex items-center justify-center w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg overflow-hidden">
                   {imagePreview || category.image ? (
                     <Image
+                    width={300}
+                    height={300}
                       src={imagePreview || category.image}
                       alt="Preview"
                       className="w-full h-full object-cover"

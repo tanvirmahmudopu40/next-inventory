@@ -192,6 +192,8 @@ export default function ProductList() {
                   <td className="px-6 py-4">
                     {product.image ? (
                       <Image 
+                        width={500}
+                        height={300}
                         src={product.image} 
                         alt={product.title} 
                         className="h-12 w-12 object-cover rounded"

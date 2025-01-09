@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import connectDB from '../../../lib/mongodb';
+import Order from '../../../models/Order';
+import Product from '../../../models/Product';
 
 export async function POST(request) {
   try {
+    await connectDB();
     const data = await request.json();
     
     // Create item summary for storing in Order table
@@ -18,26 +19,25 @@ export async function POST(request) {
     }));
 
     // Create order without OrderItems
-    const order = await prisma.order.create({
-      data: {
-        subtotal: data.subtotal,
-        total: data.total,
-        tax: data.tax,
-        discount: data.discount,
-        status: data.status,
-        customerName: data.customerName,
-        paymentMethod: data.paymentMethod,
-        cashierName: data.cashierName,
-        notes: data.notes,
-        itemsSummary: itemsSummary // Store all items data in JSON field
-      }
+    const order = new Order({
+      subtotal: data.subtotal,
+      total: data.total,
+      tax: data.tax,
+      discount: data.discount,
+      status: data.status,
+      customerName: data.customerName,
+      paymentMethod: data.paymentMethod,
+      cashierName: data.cashierName,
+      notes: data.notes,
+      itemsSummary: itemsSummary // Store all items data in JSON field
     });
+
+    await order.save();
 
     // Update product stock
     for (const item of data.items) {
-      await prisma.product.update({
-        where: { id: item.id },
-        data: { stock: { decrement: item.quantity } }
+      await Product.findByIdAndUpdate(item.id, {
+        $inc: { stock: -item.quantity }
       });
     }
 
@@ -48,17 +48,14 @@ export async function POST(request) {
       { error: 'Failed to create order', details: error.message },
       { status: 500 }
     );
-  }
+  } 
 }
 
 // Add GET handler to fetch all orders
 export async function GET() {
   try {
-    const orders = await prisma.order.findMany({
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    await connectDB();
+    const orders = await Order.find().sort({ createdAt: -1 });
 
     return NextResponse.json(orders);
   } catch (error) {
@@ -68,4 +65,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-} 
+}

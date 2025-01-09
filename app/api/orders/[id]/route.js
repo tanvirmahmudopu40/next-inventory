@@ -1,17 +1,12 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
-
+import connectDB from '../../../../lib/mongodb';
+import Order from '../../../../models/Order';
+import Product from '../../../../models/Product';
 
 export async function GET(request, { params }) {
   try {
-    const order = await prisma.order.findUnique({
-      where: {
-        id: params.id
-      }
-    });
+    await connectDB();
+    const order = await Order.findById(params.id);
 
     if (!order) {
       return NextResponse.json(
@@ -28,17 +23,15 @@ export async function GET(request, { params }) {
       { status: 500 }
     );
   }
-} 
-
+}
 
 export async function DELETE(request, { params }) {
   try {
+    await connectDB();
     const { id } = params;
 
     // Get the order to revert stock
-    const order = await prisma.order.findUnique({
-      where: { id }
-    });
+    const order = await Order.findById(id);
 
     if (!order) {
       return NextResponse.json(
@@ -49,16 +42,13 @@ export async function DELETE(request, { params }) {
 
     // Revert stock for items
     for (const item of order.itemsSummary) {
-      await prisma.product.update({
-        where: { id: item.id },
-        data: { stock: { increment: item.quantity } }
+      await Product.findByIdAndUpdate(item.id, {
+        $inc: { stock: item.quantity }
       });
     }
 
     // Delete the order
-    await prisma.order.delete({
-      where: { id }
-    });
+    await Order.findByIdAndDelete(id);
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -72,12 +62,11 @@ export async function DELETE(request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
+    await connectDB();
     const data = await request.json();
 
     // Get the original order to revert stock
-    const originalOrder = await prisma.order.findUnique({
-      where: { id: params.id }
-    });
+    const originalOrder = await Order.findById(params.id);
 
     if (!originalOrder) {
       return NextResponse.json(
@@ -88,9 +77,8 @@ export async function PUT(request, { params }) {
 
     // Revert stock for original items
     for (const item of originalOrder.itemsSummary) {
-      await prisma.product.update({
-        where: { id: item.id },
-        data: { stock: { increment: item.quantity } }
+      await Product.findByIdAndUpdate(item.id, {
+        $inc: { stock: item.quantity }
       });
     }
 
@@ -105,23 +93,21 @@ export async function PUT(request, { params }) {
     }));
 
     // Update order with new data
-    const updatedOrder = await prisma.order.update({
-      where: {
-        id: params.id
-      },
-      data: {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      params.id,
+      {
         status: data.status,
         notes: data.notes,
         total: data.total,
         itemsSummary: itemsSummary
-      }
-    });
+      },
+      { new: true }
+    );
 
     // Update stock for new items
     for (const item of data.items) {
-      await prisma.product.update({
-        where: { id: item.id },
-        data: { stock: { decrement: item.quantity } }
+      await Product.findByIdAndUpdate(item.id, {
+        $inc: { stock: -item.quantity }
       });
     }
 
@@ -133,4 +119,4 @@ export async function PUT(request, { params }) {
       { status: 500 }
     );
   }
-} 
+}

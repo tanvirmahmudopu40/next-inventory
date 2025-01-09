@@ -233,7 +233,7 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   {orders.slice(0, 5).map((order) => (
-                    <tr key={order.id} className="border-t border-gray-100">
+                    <tr key={order._id} className="border-t border-gray-100">
                       <td className="py-3 text-sm">{order.invoiceNo}</td>
                       <td className="py-3 text-sm">{order.customerName}</td>
                       <td className="py-3 text-sm">${order.total.toFixed(2)}</td>
@@ -271,7 +271,7 @@ export default function AdminDashboard() {
                     .filter(p => p.stock < 10)
                     .slice(0, 5)
                     .map((product) => (
-                      <tr key={product.id} className="border-t border-gray-100">
+                      <tr key={product._id} className="border-t border-gray-100">
                         <td className="py-3 text-sm">{product.title}</td>
                         <td className="py-3 text-sm">{product.category}</td>
                         <td className="py-3 text-sm">

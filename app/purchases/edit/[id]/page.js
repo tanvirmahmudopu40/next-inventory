@@ -215,7 +215,7 @@ export default function EditPurchase() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to update purchase');
+      if (!response.ok) throw new Error('Failed to update purchasee');
       router.push('/purchases');
     } catch (error) {
       setError(error.message);

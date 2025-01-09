@@ -38,7 +38,7 @@ export default function OrderDetails() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold">INVOICE</h1>
-              <p className="text-indigo-200">#{order.id}</p>
+              <p className="text-indigo-200">#{order._id}</p>
             </div>
             <div className="text-right">
               <p className="text-lg font-semibold">Your Company Name</p>

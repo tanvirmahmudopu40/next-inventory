@@ -161,7 +161,7 @@ export default function OrderList() {
               </thead>
               <tbody className="divide-y divide-[#d8dbe0] bg-white">
                 {filteredOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-[#f8f9fa] transition-colors">
+                  <tr key={order._id} className="hover:bg-[#f8f9fa] transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-[#768192]">
                       {order.invoiceNo}
                     </td>
@@ -185,26 +185,26 @@ export default function OrderList() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                       <Link
-                        href={`/orders/${order.id}`}
+                        href={`/orders/${order._id}`}
                         className="text-[#321fdb] hover:text-[#2819b0]"
                       >
                         View
                       </Link>
                       <Link
-                        href={`/orders/edit/${order.id}`}
+                        href={`/orders/edit/${order._id}`}
                         className="text-[#2eb85c] hover:text-[#24934a]"
                       >
                         Edit
                       </Link>
                       <button
-                        onClick={() => deleteOrder(order.id)}
+                        onClick={() => deleteOrder(order._id)}
                         className="text-[#e55353] hover:text-[#d93737]"
                       >
                         Delete
                       </button>
                       {order.status === 'completed' && (
                         <button
-                          onClick={() => handleReturn(order.id)}
+                          onClick={() => handleReturn(order._id)}
                           className="text-orange-600 hover:text-orange-800"
                         >
                           Return

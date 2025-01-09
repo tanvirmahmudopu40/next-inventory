@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
+import connectDB from '../../../lib/mongodb';
 import Purchasereturn from '../../../models/Purchasereturn';
 
-const dbUri = process.env.MONGODB_URI;
+
 
 export async function GET() {
   try {
-    await mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true });
+    await connectDB();
     const returns = await Purchasereturn.find().sort({ date: -1 });
+    // const returns = await Purchasereturn.findById(params.id).lean();
     return NextResponse.json(returns);
   } catch (error) {
     console.error('Failed to fetch purchase returns:', error);
@@ -15,15 +16,14 @@ export async function GET() {
       { error: 'Failed to fetch purchase returns' },
       { status: 500 }
     );
-  } finally {
-    await mongoose.disconnect();
-  }
+  } 
 }
 
 export async function POST(request) {
   try {
+    await connectDB();
     const data = await request.json();
-    await mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true });
+    
 
     const purchasereturn = new Purchasereturn({
       date: new Date(data.date),
@@ -44,7 +44,5 @@ export async function POST(request) {
       { error: 'Failed to create purchase return' },
       { status: 500 }
     );
-  } finally {
-    await mongoose.disconnect();
-  }
+  } 
 }
